@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LinkedIn Is Not a Platform. It's a Product.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #16161f;
+      --accent: #e8c87a;
+      --accent2: #7a9ee8;
+      --accent3: #e87a9e;
+      --text: #e8e8f0;
+      --text-muted: #7a7a9a;
+      --text-dim: #4a4a6a;
+      --border: rgba(232,200,122,0.12);
+      --glow: rgba(232,200,122,0.06);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* Ambient glow blobs */
+    .ambient {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ambient-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(232,200,122,0.07) 0%, transparent 70%);
+      top: -200px; right: -200px;
+    }
+    .ambient-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(122,158,232,0.06) 0%, transparent 70%);
+      bottom: 20%; left: -150px;
+    }
+    .ambient-3 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(232,122,158,0.05) 0%, transparent 70%);
+      bottom: -100px; right: 10%;
+    }
+
+    /* Layout */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6rem 0 4rem;
+      position: relative;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .hero-eyebrow::after {
+      content: '';
+      display: block;
+      width: 40px;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.5;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.4s;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.6s;
+      margin-bottom: 3rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.8s;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .author-block {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .author-name {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .author-role {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .meta-divider {
+      width: 1px;
+      height: 30px;
+      background: var(--border);
+    }
+
+    .read-time {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+
+    /* Scroll indicator */
+    .scroll-cue {
+      position: absolute;
+      bottom: 2rem;
+      left: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 1.2s;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    .scroll-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--text-dim);
+      writing-mode: vertical-rl;
+      text-transform: uppercase;
+    }
+
+    /* Article body */
+    article {
+      padding: 4rem 0 8rem;
+    }
+
+    /* Pull quote / intro block */
+    .intro-block {
+      font-size: 1.25rem;
+      line-height: 1.75;
+      color: var(--text);
+      padding: 2.5rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4rem;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards 0.2s;
+    }
+
+    .intro-block strong {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 5rem;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Section label */
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.6;
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+    }
+
+    h2 em { color: var(--accent); font-style: italic; }
+
+    p {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+      line-height: 1.85;
+    }
+
+    p strong { color: var(--text); font-weight: 500; }
+
+    /* Callout / blockquote */
+    .callout {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 1.75rem 2rem;
+      margin: 2.5rem 0;
+      border-radius: 0 8px 8px 0;
+      position: relative;
+    }
+
+    .callout::before {
+      content: '"';
+      font-family: 'Playfair Display', serif;
+      font-size: 5rem;
+      color: var(--accent);
+      opacity: 0.15;
+      position: absolute;
+      top: -1rem;
+      left: 1rem;
+      line-height: 1;
+    }
+
+    .callout p {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--text);
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    /* Framework cards */
+    .framework-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      margin: 2.5rem 0;
+    }
+
+    .framework-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .framework-card:hover {
+      border-color: rgba(232,200,122,0.3);
+      transform: translateX(6px);
+    }
+
+    .framework-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--glow);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .framework-card:hover::before { opacity: 1; }
+
+    .card-icon {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .card-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-equation {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+    }
+
+    .card-equation .eq-left { color: var(--accent2); }
+    .card-equation .eq-op { color: var(--text-dim); margin: 0 0.5rem; }
+    .card-equation .eq-right { color: var(--accent); }
+
+    .card-body {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    /* Loop visualization */
+    .loop-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin: 2.5rem 0;
+      text-align: center;
+    }
+
+    .loop-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 2rem;
+    }
+
+    .loop-steps {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      row-gap: 1rem;
+    }
+
+    .loop-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .loop-step-num {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      transition: all 0.3s ease;
+    }
+
+    .loop-step:hover .loop-step-num {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      transform: scale(1.1);
+    }
+
+    .loop-step-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.05em;
+    }
+
+    .loop-arrow {
+      color: var(--text-dim);
+      font-size: 1.2rem;
+      padding: 0 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .loop-repeat {
+      margin-top: 1.5rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    /* Practice checklist */
+    .checklist {
+      list-style: none;
+      margin: 2rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color 0.3s ease;
+    }
+
+    .checklist li:hover {
+      border-color: rgba(232,200,122,0.25);
+    }
+
+    .check-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(232,200,122,0.12);
+      border: 1px solid rgba(232,200,122,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+      font-size: 0.65rem;
+      color: var(--accent);
+    }
+
+    .check-content strong {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .check-content span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin: 4rem 0;
+      color: var(--text-dim);
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider-icon {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* CTA / closing */
+    .closing {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .closing::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(232,200,122,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .closing-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+
+    .closing h2 {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      margin-bottom: 1rem;
+    }
+
+    .closing p {
+      max-width: 480px;
+      margin: 0 auto 2rem;
+      font-size: 1rem;
+    }
+
+    .cta-options {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-pill {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.6rem 1.25rem;
+      border-radius: 100px;
+      font-size: 0.85rem;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.05em;
+    }
+
+    .cta-pill:hover, .cta-pill.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .cta-response {
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--accent);
+      font-style: italic;
+      min-height: 1.5rem;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .footer-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+
+    .footer-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero { padding: 4rem 0 3rem; }
+      .loop-steps { gap: 0; }
+      .loop-arrow { font-size: 1rem; padding: 0 0.25rem; }
+      .closing { padding: 2rem 1.5rem; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient blobs -->
+  <div class="ambient ambient-1"></div>
+  <div class="ambient ambient-2"></div>
+  <div class="ambient ambient-3"></div>
+
+  <div class="wrapper">
+
+    <!-- HERO -->
+    <header class="hero">
+      <p class="hero-eyebrow">Thought Leadership · LinkedIn · Product Thinking</p>
+      <h1 class="hero-title">
+        LinkedIn Is Not<br>a Platform.<br>It's <em>a Product.</em>
+      </h1>
+      <p class="hero-subtitle">
+        And here's why that distinction matters more than any posting strategy you've ever tried.
+      </p>
+      <div class="hero-meta">
+        <div class="author-block">
+          <span class="author-name">QE & Delivery Leader</span>
+          <span class="author-role">MBA · Institute of Product Leadership</span>
+        </div>
+        <div class="meta-divider"></div>
+        <span class="read-time">5 min read</span>
+      </div>
+      <div class="scroll-cue">
+        <div class="scroll-line"></div>
+        <span class="scroll-label">Scroll</span>
+      </div>
+    </header>
+
+    <!-- ARTICLE -->
+    <article>
+
+      <!-- Intro -->
+      <div class="intro-block">
+        Most people on LinkedIn are working <strong>extremely hard</strong> — and getting very little back.
+        More posts. Better captions. Trending hashtags. Engagement pods. The effort is real.
+        The results, often, are not. And I think I know exactly why.
+      </div>
+
+      <!-- Section 1: The observation -->
+      <div class="section">
+        <span class="section-label">The Problem</span>
+        <h2>Everyone Is Optimising<br>for the <em>Wrong Thing</em></h2>
+        <p>
+          Studying product frameworks during my MBA at the Institute of Product Leadership gave me a lens
+          I didn't expect to apply here. But once I saw it, I couldn't unsee it.
+        </p>
+        <p>
+          <strong>Most people treat LinkedIn like a platform they show up on.</strong>
+          But LinkedIn behaves like a product — one that needs to be built, distributed, and grown
+          with deliberate intention.
+        </p>
+        <p>
+          And the overwhelming majority are only doing one of the three.
+        </p>
+        <div class="callout">
+          <p>
+            Posting without a distribution or retention strategy is like shipping product features
+            into a void — with no users, no feedback, and no growth loop.
+          </p>
+        </div>
+      </div>
+
+      <!-- Section 2: The framework -->
+      <div class="section">
+        <span class="section-label">The Framework</span>
+        <h2>Your LinkedIn <em>Is</em><br>a Product. Map It That Way.</h2>
+        <p>
+          If you apply basic product thinking, the entire LinkedIn puzzle snaps into place.
+          Three pillars. Each one non-negotiable.
+        </p>
+
+        <div class="framework-grid">
+          <div class="framework-card">
+            <span class="card-icon">📦</span>
+            <div class="card-title">Pillar 01</div>
+            <div class="card-equation">
+              <span class="eq-left">Content</span>
+              <span class="eq-op">=</span>
+              <span class="eq-right">Features</span>
+            </div>
+            <p class="card-body">
+              Features exist to create value for users. If your content doesn't educate, challenge, or shift
+              perspective — people won't return. No retention. No growth. Weak features mean churn, and churn
+              means a dead product.
+            </p>
+          </div>
+          <div class="framework-card">
+            <span class="card-icon">📡</span>
+            <div class="card-title">Pillar 02</div>
+            <div class="card-equation">
+              <span class="eq-left">Network</span>
+              <span class="eq-op">=</span>
+              <span class="eq-right">Distribution</span>
+            </div>
+            <p class="card-body">
+              Even the best product fails without a go-to-market strategy. Your network is your distribution
+              channel. Posting without building distribution is like launching to an empty room and wondering
+              why nobody showed up.
+            </p>
+          </div>
+          <div class="framework-card">
+            <span class="card-icon">💬</span>
+            <div class="card-title">Pillar 03</div>
+            <div class="card-equation">
+              <span class="eq-left">Engagement</span>
+              <span class="eq-op">=</span>
+              <span class="eq-right">Retention</span>
+            </div>
+            <p class="card-body">
+              Comments, replies, DMs, genuine conversations — this is your repeat usage metric. Retention is
+              what separates products people love from products they forget existed. It's also the signal
+              the algorithm needs to amplify you.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"><span class="divider-icon">· · ·</span></div>
+
+      <!-- Section 3: Where the loop breaks -->
+      <div class="section">
+        <span class="section-label">The Diagnosis</span>
+        <h2>Where Most People's<br><em>Loop Is Broken</em></h2>
+        <p>
+          The typical LinkedIn advice is: <strong>"Just post consistently."</strong>
+        </p>
+        <p>
+          That's the equivalent of telling a Product Manager to keep shipping features —
+          while ignoring acquisition and retention entirely. It doesn't work in product.
+          It doesn't work on LinkedIn either.
+        </p>
+        <p>
+          The people struggling on LinkedIn aren't struggling because their content is bad.
+          They're struggling because:
+        </p>
+        <ul class="checklist">
+          <li>
+            <div class="check-icon">✕</div>
+            <div class="check-content">
+              <strong>Broken Distribution</strong>
+              <span>They're distributing to the wrong people — or to no one with any intention at all.</span>
+            </div>
+          </li>
+          <li>
+            <div class="check-icon">✕</div>
+            <div class="check-content">
+              <strong>Zero Retention Effort</strong>
+              <span>They're not engaging — so the algorithm has no signal to amplify their content.</span>
+            </div>
+          </li>
+          <li>
+            <div class="check-icon">✕</div>
+            <div class="check-content">
+              <strong>Broadcast Mindset</strong>
+              <span>They're treating LinkedIn as a megaphone, not a relationship engine.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Section 4: The loop -->
+      <div class="section">
+        <span class="section-label">The Solution</span>
+        <h2>The Growth Loop That<br><em>Actually Works</em></h2>
+        <p>
+          The most successful voices on LinkedIn aren't just great writers.
+          They're great product thinkers — whether they realise it or not.
+          They run a loop, and they run it consistently.
+        </p>
+
+        <div class="loop-container">
+          <p class="loop-title">The LinkedIn Growth Loop</p>
+          <div class="loop-steps">
+            <div class="loop-step">
+              <div class="loop-step-num">01</div>
+              <div class="loop-step-label">Build</div>
+            </div>
+            <div class="loop-arrow">→</div>
+            <div class="loop-step">
+              <div class="loop-step-num">02</div>
+              <div class="loop-step-label">Distribute</div>
+            </div>
+            <div class="loop-arrow">→</div>
+            <div class="loop-step">
+              <div class="loop-step-num">03</div>
+              <div class="loop-step-label">Engage</div>
+            </div>
+            <div class="loop-arrow">→</div>
+            <div class="loop-step">
+              <div class="loop-step-num">04</div>
+              <div class="loop-step-label">Repeat</div>
+            </div>
+          </div>
+          <p class="loop-repeat">↺ &nbsp; Miss one step, and the whole system leaks.</p>
+        </div>
+
+        <p>
+          Miss one, and the whole system leaks. This isn't a posting cadence.
+          It's a <strong>growth operating system</strong>.
+        </p>
+      </div>
+
+      <!-- Section 5: In practice -->
+      <div class="section">
+        <span class="section-label">In Practice</span>
+        <h2>What This Looks Like<br><em>Day to Day</em></h2>
+        <p>
+          The shift isn't about doing more. It's about doing the right things in the right sequence,
+          with the right mindset. Here's how the framework translates to action:
+        </p>
+        <ul class="checklist">
+          <li>
+            <div class="check-icon">✓</div>
+            <div class="check-content">
+              <strong>Build — Create with a point of view</strong>
+              <span>Not just observations. Take a stance. Challenge assumptions. Make someone think differently.</span>
+            </div>
+          </li>
+          <li>
+            <div class="check-icon">✓</div>
+            <div class="check-content">
+              <strong>Distribute — Connect with intent</strong>
+              <span>Your network is a channel. Curate it. Connect with people you genuinely want to learn from and contribute to.</span>
+            </div>
+          </li>
+          <li>
+            <div class="check-icon">✓</div>
+            <div class="check-content">
+              <strong>Engage — Show up before expecting others to</strong>
+              <span>Be present in others' conversations. Comments are currency. Don't be broke.</span>
+            </div>
+          </li>
+          <li>
+            <div class="check-icon">✓</div>
+            <div class="check-content">
+              <strong>Repeat — Treat this as a system, not a campaign</strong>
+              <span>Iterate. Improve. A product is never "done." Neither is your LinkedIn presence.</span>
+            </div>
+          </li>
+        </ul>
+
+        <div class="callout">
+          <p>
+            Stop asking "Why isn't my content performing?" Start asking
+            "Where is my growth loop breaking?" That's a product manager's question —
+            and it gets product manager results.
+          </p>
+        </div>
+      </div>
+
+      <div class="divider"><span class="divider-icon">· · ·</span></div>
+
+      <!-- Closing CTA -->
+      <div class="section">
+        <div class="closing">
+          <p class="closing-eyebrow">Over to you</p>
+          <h2>Which Part of the Loop<br>Are You <em>Neglecting?</em></h2>
+          <p>
+            LinkedIn rewards those who think like builders, not broadcasters.
+            Own it like a product. Grow it like one.
+          </p>
+          <div class="cta-options">
+            <button class="cta-pill" onclick="selectPill(this, 'Features')">📦 Features (Content)</button>
+            <button class="cta-pill" onclick="selectPill(this, 'Distribution')">📡 Distribution (Network)</button>
+            <button class="cta-pill" onclick="selectPill(this, 'Retention')">💬 Retention (Engagement)</button>
+          </div>
+          <p class="cta-response" id="ctaResponse"></p>
+        </div>
+      </div>
+
+    </article>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="footer-brand">LinkedIn · Product Thinking</div>
+      <div class="footer-meta">© 2026 · All rights reserved</div>
+      <div class="footer-tag">#ProductThinking #LinkedIn #QELeadership</div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Scroll reveal
+    const sections = document.querySelectorAll('.section');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    sections.forEach(s => observer.observe(s));
+
+    // CTA interaction
+    const responses = {
+      'Features': "Great starting point — but remember, even the best features need distribution to reach users. 🚀",
+      'Distribution': "Smart focus. Your network is your GTM strategy. Build it with intention, not volume. 🎯",
+      'Retention': "The most underrated lever. Engagement compounds — the algorithm rewards conversations, not monologues. 💡"
+    };
+
+    function selectPill(el, key) {
+      document.querySelectorAll('.cta-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      const resp = document.getElementById('ctaResponse');
+      resp.style.opacity = 0;
+      setTimeout(() => {
+        resp.textContent = responses[key];
+        resp.style.opacity = 1;
+      }, 200);
+    }
+  </script>
+</body>
+</html>
