@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Most People Don't Think. They Swallow.</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1714;
+    --ink-soft: #4a4540;
+    --ink-muted: #8a827a;
+    --paper: #f5f0e8;
+    --paper-dark: #ede7d9;
+    --accent: #b85c38;
+    --accent-light: #e8c4b0;
+    --rule: #c8bfb0;
+  }
+
+  html { font-size: 18px; }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: 'Lora', Georgia, serif;
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  /* Subtle paper texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 28px,
+        rgba(180,160,130,0.07) 28px,
+        rgba(180,160,130,0.07) 29px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 80px 40px 120px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 64px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--rule);
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .label {
+    font-family: 'Lora', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.8rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .byline {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Body */
+  .body {
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+
+  p {
+    margin-bottom: 1.6rem;
+    color: var(--ink-soft);
+    font-size: 1rem;
+  }
+
+  p:first-child {
+    color: var(--ink);
+    font-size: 1.08rem;
+  }
+
+  /* Section break */
+  .section-break {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0;
+  }
+
+  .section-break::before,
+  .section-break::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .section-break span {
+    color: var(--accent);
+    font-size: 1.1rem;
+  }
+
+  /* Pull quote */
+  .pull-quote {
+    margin: 48px 0;
+    padding: 28px 32px;
+    border-left: 3px solid var(--accent);
+    background: var(--paper-dark);
+  }
+
+  .pull-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--ink);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Examples block */
+  .examples {
+    margin: 40px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .example {
+    padding: 24px 28px;
+    background: var(--paper-dark);
+    border-top: 2px solid var(--accent-light);
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .example-claim {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .example-claim::before {
+    content: '"';
+    color: var(--accent);
+    font-size: 1.4rem;
+    line-height: 0;
+    vertical-align: -0.3em;
+    margin-right: 4px;
+  }
+
+  .example-challenge {
+    font-size: 0.88rem;
+    color: var(--ink-muted);
+    line-height: 1.7;
+  }
+
+  .example-challenge strong {
+    color: var(--accent);
+    font-weight: 500;
+    font-style: normal;
+  }
+
+  /* Closing */
+  .closing {
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .closing p {
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  .closing .final-line {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--ink);
+    margin-top: 32px;
+    margin-bottom: 0;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-text {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .footer-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .body > * {
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .body > *:nth-child(1) { animation-delay: 0.2s; }
+  .body > *:nth-child(2) { animation-delay: 0.3s; }
+  .body > *:nth-child(3) { animation-delay: 0.4s; }
+  .body > *:nth-child(4) { animation-delay: 0.5s; }
+  .body > *:nth-child(5) { animation-delay: 0.55s; }
+  .body > *:nth-child(6) { animation-delay: 0.6s; }
+  .body > *:nth-child(7) { animation-delay: 0.65s; }
+  .body > *:nth-child(8) { animation-delay: 0.7s; }
+
+  @media (max-width: 600px) {
+    .page { padding: 48px 24px 80px; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="header">
+    <h1>Most People Don't Think.<br><em>They Swallow.</em></h1>
+    <p class="byline">On the difference between consuming ideas and actually thinking about them</p>
+  </header>
+
+  <div class="body">
+
+    <p>Last week, a colleague said something in a meeting that stopped me cold. Not because it was wrong, but because of what happened after he said it.</p>
+
+    <p>Someone had just declared, with quiet confidence, that AI is going to replace most QA jobs. The room nodded. The conversation moved on. It was the kind of statement that travels fast precisely because it sounds right, feels timely, and requires nothing from the listener.</p>
+
+    <p>Then one person pushed back. Not aggressively. Just curiously. "Replace <em>what part</em> of QA?" he asked.</p>
+
+    <p>Silence.</p>
+
+    <p>He kept going. If QA is test case execution, sure, maybe AI gets there. But if QA is about imagining edge cases nobody thought to write down, understanding how complex systems fail in non-obvious ways, asking the uncomfortable question before a product ships... is that really what we mean when we say "QA job"?</p>
+
+    <p>The room changed. Same original statement. Entirely different conversation.</p>
+
+    <div class="section-break"><span>*</span></div>
+
+    <p>What struck me was not that he had a better answer. It is that he had a better <em>question</em>. Most of us had already digested the claim and moved on. He had not swallowed it yet. He was still chewing.</p>
+
+    <p>This is rarer than it sounds.</p>
+
+    <p>We live in an environment optimized for consumption. Feeds, newsletters, podcasts, hot takes. All of it engineered to move fast. And so we learn to process ideas quickly: hear it, file it, repeat it. It feels like learning. It has the texture of staying informed. But swallowed thoughts do not become yours. They just pass through.</p>
+
+    <div class="pull-quote">
+      <p>Chewed thoughts are different. They slow you down. They create friction. You turn the idea over, look at it from the other side, ask what it assumes, ask who it benefits, ask when it fails.</p>
+    </div>
+
+    <div class="section-break"><span>*</span></div>
+
+    <p>Consider a few ideas that travel well precisely because nobody chews on them.</p>
+
+    <div class="examples">
+      <div class="example">
+        <p class="example-claim">Startups need to burn cash to grow.</p>
+        <p class="example-challenge"><strong>But chew on it:</strong> Maybe. Or maybe that is a story that benefits people whose business model is funding startups. Some of the most durable companies were profitable from early on.</p>
+      </div>
+      <div class="example">
+        <p class="example-claim">Post daily on LinkedIn to grow.</p>
+        <p class="example-challenge"><strong>But chew on it:</strong> Possibly. But is it frequency that drives real engagement, or is it insight density? Those are not the same thing, and confusing them leads to a lot of noise and very little signal.</p>
+      </div>
+      <div class="example">
+        <p class="example-claim">Follow your passion.</p>
+        <p class="example-challenge"><strong>But chew on it:</strong> Passion for what, exactly? Research on expertise suggests passion often follows mastery. You get interested in things you get good at, not the other way around.</p>
+      </div>
+    </div>
+
+    <p>None of these are necessarily wrong. But they deserve a pause before a nod.</p>
+
+    <div class="section-break"><span>*</span></div>
+
+    <p>Here is what I keep coming back to. In a world where everyone has access to the same content, the same AI tools, the same information streams, the ideas you consume are not your edge. Everyone has those.</p>
+
+    <p>Your edge is what you do <em>with</em> an idea after you encounter it. Whether you repeat it or wrestle with it. Whether you echo it or reshape it into something that actually reflects how you think.</p>
+
+    <div class="closing">
+      <p>Swallowed thoughts create followers. Chewed thoughts create thinkers.</p>
+      <p class="final-line">Next time something sounds smart, sit with it a little longer. Ask the uncomfortable question. See what is actually inside.</p>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <span class="footer-text">On Thinking</span>
+  </footer>
+
+</div>
+</body>
+</html>
