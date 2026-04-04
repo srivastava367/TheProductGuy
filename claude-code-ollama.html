@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Interface Stays. The Intelligence Evolves. | Santosh Srivastava</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #141414;
+    --border: #1f1f1f;
+    --accent: #c8f135;
+    --accent-dim: rgba(200, 241, 53, 0.08);
+    --text: #e8e8e4;
+    --muted: #666660;
+    --subtle: #2a2a2a;
+    --code-bg: #111411;
+    --code-border: #2a3520;
+    --white: #f5f5f0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.75;
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(14,14,14,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 15px;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+
+  .nav-tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 120px 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(200,241,53,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.2s forwards;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(42px, 7vw, 88px);
+    line-height: 1.05;
+    color: var(--white);
+    max-width: 900px;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.35s forwards;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-meta {
+    margin-top: 48px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.55s forwards;
+  }
+
+  .hero-meta-item {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .hero-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+  }
+
+  .hero-scroll {
+    margin-top: 80px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease 0.7s forwards;
+  }
+
+  .scroll-line {
+    width: 48px;
+    height: 1px;
+    background: var(--accent);
+    animation: expandLine 1s ease 1.2s both;
+  }
+
+  .scroll-text {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 48px;
+  }
+
+  section {
+    padding: 96px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  section:first-of-type {
+    border-top: none;
+  }
+
+  /* SECTION LABELS */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    max-width: 60px;
+  }
+
+  /* TYPOGRAPHY */
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.2;
+    color: var(--white);
+    margin-bottom: 28px;
+  }
+
+  h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--white);
+    margin-bottom: 16px;
+    margin-top: 48px;
+  }
+
+  h3:first-child { margin-top: 0; }
+
+  p {
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  p:last-child { margin-bottom: 0; }
+
+  strong {
+    font-weight: 500;
+    color: var(--white);
+  }
+
+  /* PULL QUOTE */
+  .pull-quote {
+    border-left: 2px solid var(--accent);
+    padding: 24px 32px;
+    margin: 48px 0;
+    background: var(--accent-dim);
+  }
+
+  .pull-quote p {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--white);
+    font-style: italic;
+    margin: 0;
+  }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    margin: 32px 0;
+    overflow: hidden;
+  }
+
+  .code-header {
+    background: #0c120a;
+    border-bottom: 1px solid var(--code-border);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .code-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .code-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--subtle);
+  }
+
+  .code-body {
+    padding: 24px;
+    overflow-x: auto;
+  }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: #b8d9a0;
+    white-space: pre;
+  }
+
+  .comment { color: var(--muted); }
+  .cmd { color: var(--accent); }
+  .flag { color: #7ec8e3; }
+  .val { color: #d4a5f5; }
+  .env { color: #f5a87a; }
+
+  /* STEP BLOCKS */
+  .step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .step-block {
+    padding: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .step-block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent);
+    opacity: 0.4;
+  }
+
+  .step-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .step-note {
+    font-size: 13px;
+    color: var(--muted);
+    background: var(--subtle);
+    padding: 10px 16px;
+    border-radius: 2px;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* MODEL TABLE */
+  .model-grid {
+    display: grid;
+    gap: 2px;
+    margin: 32px 0;
+  }
+
+  .model-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2px;
+  }
+
+  .model-cell {
+    background: var(--surface);
+    padding: 16px 20px;
+    font-size: 13px;
+  }
+
+  .model-cell.header {
+    background: var(--subtle);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .model-name {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  .model-use {
+    color: var(--text);
+  }
+
+  .model-note {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* CALLOUT */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 32px;
+    margin: 40px 0;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .callout-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .callout p {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  .callout strong { color: var(--text); }
+
+  /* TRADEOFF */
+  .tradeoff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin: 32px 0;
+  }
+
+  .tradeoff-col {
+    padding: 32px;
+    background: var(--surface);
+  }
+
+  .tradeoff-col-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .tradeoff-col.cloud .tradeoff-col-label { color: #7ec8e3; }
+  .tradeoff-col.local .tradeoff-col-label { color: var(--accent); }
+
+  .tradeoff-item {
+    font-size: 14px;
+    color: var(--text);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tradeoff-item:last-child { border-bottom: none; }
+
+  .tradeoff-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .cloud .tradeoff-dot { background: #7ec8e3; }
+  .local .tradeoff-dot { background: var(--accent); }
+
+  /* CLOSING */
+  .closing {
+    text-align: center;
+    padding: 120px 48px;
+    border-top: 1px solid var(--border);
+  }
+
+  .closing-line {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+
+  .closing-line em { color: var(--accent); font-style: italic; }
+
+  .closing p {
+    color: var(--muted);
+    font-size: 15px;
+    margin-top: 32px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 32px 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .footer-links a {
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--accent); }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes expandLine {
+    from { width: 0; }
+    to { width: 48px; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    nav { padding: 16px 24px; }
+    .hero { padding: 100px 24px 64px; }
+    .container { padding: 0 24px; }
+    .tradeoff-grid { grid-template-columns: 1fr; }
+    .model-row { grid-template-columns: 1fr 1fr; }
+    .model-cell:last-child { display: none; }
+    .closing { padding: 80px 24px; }
+    footer { padding: 24px; flex-direction: column; gap: 16px; }
+    .step-block { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Santosh Srivastava</span>
+  <span class="nav-tag">Product Thinking</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Essay · AI Tooling · April 2026</div>
+  <h1>The Interface Stays.<br><em>The Intelligence Evolves.</em></h1>
+  <div class="hero-meta">
+    <span class="hero-meta-item">Santosh Srivastava</span>
+    <div class="hero-divider"></div>
+    <span class="hero-meta-item">7 min read</span>
+    <div class="hero-divider"></div>
+    <span class="hero-meta-item">Claude Code · Ollama · Local AI</span>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span class="scroll-text">Scroll to read</span>
+  </div>
+</div>
+
+<!-- SECTION 1: THE SHIFT -->
+<div class="container">
+  <section>
+    <div class="section-label reveal">The Shift</div>
+    <h2 class="reveal reveal-delay-1">Most people think of AI tools as products. I used to think that way too.</h2>
+    <p class="reveal reveal-delay-2">Claude Code has Claude inside it. Cursor runs on GPT. Copilot is GitHub's thing. The interface and the intelligence feel like one indivisible object — you pick a tool, and you inherit its model, its pricing, its privacy posture, and its politics.</p>
+    <p class="reveal">Then something changed. In January 2026, Ollama announced support for the Anthropic Messages API. What that means in plain language: Claude Code — Anthropic's agentic terminal — can now talk to any model running locally on your machine. Same interface. Entirely different brain.</p>
+
+    <div class="pull-quote reveal">
+      <p>"The agent continues to handle planning, code navigation, and edits. The underlying model no longer needs to live in Anthropic's infrastructure."</p>
+    </div>
+
+    <p class="reveal">That one architectural change quietly turns a product into a platform. And once you see it, you can't unsee it.</p>
+  </section>
+
+  <!-- SECTION 2: WHY BOTHER -->
+  <section>
+    <div class="section-label reveal">Why Bother</div>
+    <h2 class="reveal reveal-delay-1">This isn't about finding a "better" model. It's about what cloud models can't give you.</h2>
+
+    <div class="tradeoff-grid reveal">
+      <div class="tradeoff-col cloud">
+        <div class="tradeoff-col-label">Cloud (Default)</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Best reasoning capability</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Maintained by Anthropic</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Per-token pricing</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Your code leaves your machine</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Requires internet</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Vendor lock-in</div>
+      </div>
+      <div class="tradeoff-col local">
+        <div class="tradeoff-col-label">Local (Ollama)</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Weaker on complex reasoning</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>You own the runtime</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Completely free</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Code never leaves localhost</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Works offline</div>
+        <div class="tradeoff-item"><span class="tradeoff-dot"></span>Swap models anytime</div>
+      </div>
+    </div>
+
+    <p class="reveal">The honest answer is that local models are still weaker. They struggle with complex multi-step reasoning, deep debugging, and architecture decisions. You give something up. The question is whether what you gain — privacy, control, zero cost — is worth it for a given task.</p>
+    <p class="reveal">That reframe is the whole insight: not <em>which model</em>, but <em>which model for this task.</em></p>
+  </section>
+
+  <!-- SECTION 3: SETUP -->
+  <section>
+    <div class="section-label reveal">The Setup</div>
+    <h2 class="reveal reveal-delay-1">How to wire Claude Code to a local model — every command, every flag.</h2>
+    <p class="reveal reveal-delay-2">This works on macOS, Linux, and Windows (WSL or PowerShell). The end state: you open the Claude Code terminal and a model running entirely on your hardware answers you.</p>
+
+    <!-- STEP 1 -->
+    <div class="step-block reveal">
+      <div class="step-number">01</div>
+      <div class="step-title">Install Ollama</div>
+      <p>Ollama is the runtime that downloads, manages, and serves local models. It exposes them through an API that Claude Code can talk to.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">macOS / Linux</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="comment"># Install Ollama in one command</span>
+<span class="cmd">curl</span> <span class="flag">-fsSL</span> https://ollama.com/install.sh | sh</pre>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Windows (PowerShell)</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="comment"># Download and run the installer</span>
+<span class="cmd">winget install</span> Ollama.Ollama
+<span class="comment"># Or visit: https://ollama.com/download</span></pre>
+        </div>
+      </div>
+
+      <p>After installation, verify it's running:</p>
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Verify</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="cmd">ollama</span> <span class="flag">--version</span>
+<span class="comment"># Expected: ollama version 0.14.x or higher</span>
+<span class="comment"># If you get an error, start the server manually:</span>
+<span class="cmd">ollama</span> serve</pre>
+        </div>
+      </div>
+
+      <div class="step-note">⚠ You need Ollama v0.14.0 or later. This version added native Anthropic Messages API compatibility — what makes the Claude Code connection possible.</div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-block reveal">
+      <div class="step-number">02</div>
+      <div class="step-title">Pull a model that supports tool calling</div>
+      <p>Claude Code isn't just a chatbot — it reads files, runs bash commands, and edits code. For that agentic loop to work, the local model <strong>must support tool calling</strong>. Not all open models do.</p>
+      <p>The two most reliable options right now:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Pull models</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="comment"># GLM-4.7-Flash — recommended for most setups</span>
+<span class="comment"># 30B MoE, only 3B active params, 128K context, native tool calling</span>
+<span class="cmd">ollama pull</span> <span class="val">glm-4.7-flash</span>
+
+<span class="comment"># Qwen3 Coder — strong alternative, especially for code tasks</span>
+<span class="cmd">ollama pull</span> <span class="val">qwen3-coder</span>
+
+<span class="comment"># Verify model is available</span>
+<span class="cmd">ollama list</span></pre>
+        </div>
+      </div>
+
+      <p>GLM-4.7-Flash is the current community favourite for this setup. Its Mixture-of-Experts architecture means it punches above its weight on RAM — activating only 3 billion parameters at inference time despite being a 30B model.</p>
+
+      <div class="model-grid">
+        <div class="model-row">
+          <div class="model-cell header">Model</div>
+          <div class="model-cell header">Best For</div>
+          <div class="model-cell header">Requirement</div>
+        </div>
+        <div class="model-row">
+          <div class="model-cell"><span class="model-name">glm-4.7-flash</span></div>
+          <div class="model-cell model-use">General coding, agentic loops</div>
+          <div class="model-cell model-note">16GB+ RAM</div>
+        </div>
+        <div class="model-row">
+          <div class="model-cell"><span class="model-name">qwen3-coder</span></div>
+          <div class="model-cell model-use">Code generation, refactoring</div>
+          <div class="model-cell model-note">16GB+ RAM</div>
+        </div>
+        <div class="model-row">
+          <div class="model-cell"><span class="model-name">qwen2.5-coder:7b</span></div>
+          <div class="model-cell model-use">Light tasks on smaller machines</div>
+          <div class="model-cell model-note">8GB RAM</div>
+        </div>
+        <div class="model-row">
+          <div class="model-cell"><span class="model-name">devstral-small</span></div>
+          <div class="model-cell model-use">Strong coding, Mac M1 32GB</div>
+          <div class="model-cell model-note">32GB RAM</div>
+        </div>
+      </div>
+
+      <div class="step-note">💡 The practical RAM floor for a usable experience is 16GB. At 8GB you can run smaller models, but expect slower responses and more retries.</div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-block reveal">
+      <div class="step-number">03</div>
+      <div class="step-title">Install Claude Code</div>
+      <p>If you don't already have Claude Code, install it with:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">macOS / Linux / WSL</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="cmd">curl</span> <span class="flag">-fsSL</span> https://claude.ai/install.sh | bash</pre>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Windows CMD</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="cmd">curl</span> <span class="flag">-fsSL</span> https://claude.ai/install.cmd <span class="flag">-o</span> install.cmd <span class="flag">&&</span> install.cmd <span class="flag">&&</span> del install.cmd</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-block reveal">
+      <div class="step-number">04</div>
+      <div class="step-title">Launch Claude Code via Ollama (the easy path)</div>
+      <p>Ollama's built-in <code style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);background:var(--subtle);padding:2px 6px;">launch</code> command handles all the environment configuration automatically. This is the recommended approach.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Launch — any platform</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="comment"># Launch with model selection menu (arrow keys to choose)</span>
+<span class="cmd">ollama launch</span> claude
+
+<span class="comment"># Or specify the model directly and skip the menu</span>
+<span class="cmd">ollama launch</span> claude <span class="flag">--model</span> <span class="val">glm-4.7-flash</span>
+
+<span class="comment"># Auto-pull the model if not already downloaded</span>
+<span class="cmd">ollama launch</span> claude <span class="flag">--model</span> <span class="val">glm-4.7-flash</span> <span class="flag">--yes</span></pre>
+        </div>
+      </div>
+
+      <p>When Claude Code opens, verify it's using your local model:</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Inside Claude Code</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="comment"># Type this inside the Claude Code terminal</span>
+/model
+<span class="comment"># Output should show: glm-4.7-flash (or your chosen model)</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-block reveal">
+      <div class="step-number">05</div>
+      <div class="step-title">The manual path — set environment variables directly</div>
+      <p>If you prefer to configure things yourself, or if the <code style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);background:var(--subtle);padding:2px 6px;">ollama launch</code> command isn't available in your version, you can set three environment variables that redirect Claude Code's traffic to localhost.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">macOS / Linux (bash / zsh)</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="comment"># These three vars tell Claude Code: don't call Anthropic's API,</span>
+<span class="comment"># call Ollama on localhost instead.</span>
+
+<span class="env">export</span> ANTHROPIC_AUTH_TOKEN=<span class="val">"ollama"</span>
+<span class="env">export</span> ANTHROPIC_API_KEY=<span class="val">""</span>
+<span class="env">export</span> ANTHROPIC_BASE_URL=<span class="val">"http://localhost:11434"</span>
+
+<span class="comment"># Now launch Claude Code pointing at your model</span>
+<span class="cmd">claude</span> <span class="flag">--model</span> <span class="val">glm-4.7-flash</span></pre>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Windows PowerShell</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="env">$env:</span>ANTHROPIC_AUTH_TOKEN = <span class="val">"ollama"</span>
+<span class="env">$env:</span>ANTHROPIC_API_KEY = <span class="val">""</span>
+<span class="env">$env:</span>ANTHROPIC_BASE_URL = <span class="val">"http://localhost:11434"</span>
+
+<span class="cmd">claude</span> <span class="flag">--model</span> <span class="val">glm-4.7-flash</span></pre>
+        </div>
+      </div>
+
+      <p>What each variable does:</p>
+      <p><strong>ANTHROPIC_AUTH_TOKEN</strong> — set to the string "ollama" (not a real token). This tells Claude Code to skip Anthropic auth entirely and trust the local server.<br><br>
+      <strong>ANTHROPIC_API_KEY</strong> — left empty. No Anthropic account needed for this flow.<br><br>
+      <strong>ANTHROPIC_BASE_URL</strong> — redirects all API calls to your Ollama server running on port 11434.</p>
+
+      <div class="step-note">💡 To make these permanent, add the three export lines to your ~/.bashrc or ~/.zshrc. Switch back to cloud Anthropic models anytime by unsetting them and running claude normally.</div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step-block reveal">
+      <div class="step-number">06</div>
+      <div class="step-title">Fix permissions if Claude Code can't see your files</div>
+      <p>First-time users often find that Claude Code can't read or write files. This is a permissions setting, not a model issue.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-label">Inside Claude Code</span>
+          <div class="code-dots"><span></span><span></span><span></span></div>
+        </div>
+        <div class="code-body">
+          <pre><span class="comment"># Check current permissions</span>
+/permissions
+
+<span class="comment"># Add Bash tool access and file read/write to Allow rules</span>
+<span class="comment"># Navigate the permissions menu and enable Bash, Read, Write</span></pre>
+        </div>
+      </div>
+
+      <div class="step-note">⚠ By default, most tools are denied. Enable Bash and file access from the /permissions menu to get the full agentic experience.</div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: HOW TO THINK ABOUT THIS -->
+  <section>
+    <div class="section-label reveal">The Mental Model</div>
+    <h2 class="reveal reveal-delay-1">Which model for which task.</h2>
+    <p class="reveal reveal-delay-2">The setup is interesting. The thinking it enables is more interesting. Once you can switch models with a single command, you start making deliberate choices you never made before.</p>
+
+    <div class="callout reveal">
+      <div class="callout-icon">🔒</div>
+      <p><strong>Working with sensitive or proprietary code?</strong> Switch to a local model. Legal records, private customer data, internal architecture — none of it leaves your machine. GDPR Article 35, data residency requirements, and basic professional judgment all point in the same direction: keep it local.</p>
+    </div>
+
+    <div class="callout reveal">
+      <div class="callout-icon">⚡</div>
+      <p><strong>Rapid prototyping, boilerplate, or repetitive coding?</strong> A local model is fast, free, and more than capable. Scaffolding a new module, writing tests for known patterns, generating documentation — local handles this well.</p>
+    </div>
+
+    <div class="callout reveal">
+      <div class="callout-icon">🧠</div>
+      <p><strong>Complex debugging, architecture decisions, or novel reasoning?</strong> Go cloud. The capability gap is real. Local models are improving fast, but for genuinely hard problems, the best cloud models still have a significant edge.</p>
+    </div>
+
+    <p class="reveal">The meta-point is that you are now making a deliberate resource allocation decision — cost, privacy, quality — for each task. That's a more mature relationship with these tools than "just use the default."</p>
+  </section>
+
+  <!-- SECTION 5: WHAT THIS MEANS -->
+  <section>
+    <div class="section-label reveal">What This Means</div>
+    <h2 class="reveal reveal-delay-1">Claude Code is quietly becoming a model-agnostic shell.</h2>
+    <p class="reveal reveal-delay-2">The interface — the agentic loop, the file system access, the terminal UX — is Anthropic's and stays Anthropic's. The model behind it doesn't have to be. Today it's Ollama with GLM or Qwen. There are already routers like <code style="font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--accent);">claude-code-router</code> that let you dynamically switch between Anthropic, OpenRouter, DeepSeek, Gemini, and Ollama from within a single session.</p>
+    <p class="reveal">Tomorrow the landscape will look different again. New models will drop. Some will be better than today's cloud options at specific tasks. And the interface — Claude Code, or whatever succeeds it — will let you point at any of them.</p>
+
+    <div class="pull-quote reveal">
+      <p>"It's not a break from vendor control, but it does loosen the ties. The interface stays. The intelligence evolves."</p>
+    </div>
+
+    <p class="reveal">This is what platform thinking looks like in AI tooling. The value migrates to the layer that orchestrates, not the layer that computes. If you're building on AI tools or advising teams that are — the model-agnostic interface pattern is worth watching closely.</p>
+  </section>
+</div>
+
+<!-- CLOSING -->
+<div class="closing reveal">
+  <div class="closing-line">The interface stays.</div>
+  <div class="closing-line"><em>The intelligence evolves.</em></div>
+  <p>Would you trade model quality for privacy and control? The answer probably depends on the task — and now, for the first time, you can make that call yourself.</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-name">Santosh Srivastava</span>
+  <div class="footer-links">
+    <a href="https://srivastava367.github.io/TheProductGuy/">More Writing</a>
+    <a href="https://www.linkedin.com/in/santosh-srivastava-product/">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
