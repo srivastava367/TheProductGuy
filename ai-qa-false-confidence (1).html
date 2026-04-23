@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Scales False Confidence — Santosh Srivastava</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #09090c;
+      --surface: #0f0f14;
+      --surface-2: #161620;
+      --surface-3: #1c1c28;
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(255,255,255,0.12);
+      --accent: #e8c97a;
+      --accent-dim: rgba(232, 201, 122, 0.1);
+      --accent-glow: rgba(232, 201, 122, 0.05);
+      --text-primary: #f2efe8;
+      --text-secondary: #9896a0;
+      --text-muted: #4e4c58;
+      --red: #e07070;
+      --red-dim: rgba(224, 112, 112, 0.08);
+      --red-border: rgba(224, 112, 112, 0.18);
+      --green: #7ec8a0;
+      --green-dim: rgba(126, 200, 160, 0.08);
+      --green-border: rgba(126, 200, 160, 0.18);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── AMBIENT GLOW ── */
+    .ambient-top {
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 400px;
+      background: radial-gradient(ellipse at center, rgba(232,201,122,0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NOISE TEXTURE ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* ── READING PROGRESS BAR ── */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), rgba(232,201,122,0.4));
+      z-index: 100;
+      width: 0%;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px rgba(232,201,122,0.4);
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      padding: 96px 24px 64px;
+      max-width: 780px;
+      margin: 0 auto;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .header-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.1s;
+    }
+
+    .header-label span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(232, 201, 122, 0.18);
+      padding: 5px 14px;
+      border-radius: 2px;
+    }
+
+    .header-label span::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 7.5vw, 68px);
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.2s;
+    }
+
+    h1 em {
+      color: var(--accent);
+      font-style: italic;
+      position: relative;
+    }
+
+    .byline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+      letter-spacing: 0.03em;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.35s;
+      flex-wrap: wrap;
+    }
+
+    .byline .author-name {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .byline .sep {
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    .byline .tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 2px;
+      color: var(--text-muted);
+    }
+
+    .divider {
+      width: 40px;
+      height: 2px;
+      background: var(--accent);
+      margin-top: 44px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.45s;
+    }
+
+    /* ── MAIN ── */
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px 120px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── LEDE ── */
+    .lede {
+      padding: 52px 0 0;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.55s;
+    }
+
+    .lede p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(21px, 3vw, 27px);
+      font-weight: 400;
+      line-height: 1.55;
+      color: var(--text-primary);
+      margin-bottom: 18px;
+    }
+
+    .lede p.opener {
+      font-weight: 500;
+      font-style: italic;
+      color: #e0ddd5;
+    }
+
+    /* ── SECTIONS ── */
+    .section {
+      margin-top: 56px;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section p {
+      font-size: 16px;
+      color: #c4c1bc;
+      line-height: 1.9;
+      margin-bottom: 18px;
+    }
+
+    .section p:last-child { margin-bottom: 0; }
+
+    .section p strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── CALLOUT ── */
+    .callout {
+      border-left: 2px solid var(--accent);
+      background: var(--accent-glow);
+      padding: 28px 32px;
+      margin: 44px 0;
+      border-radius: 0 6px 6px 0;
+      position: relative;
+    }
+
+    .callout::before {
+      content: '"';
+      position: absolute;
+      top: -12px;
+      left: 24px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 72px;
+      color: var(--accent);
+      opacity: 0.15;
+      line-height: 1;
+    }
+
+    .callout p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(19px, 2.8vw, 25px);
+      font-style: italic;
+      color: #ece8de;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    /* ── WARNING BOX ── */
+    .warning-box {
+      background: var(--red-dim);
+      border: 1px solid var(--red-border);
+      border-radius: 6px;
+      padding: 28px 32px;
+      margin: 44px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .warning-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--red);
+      opacity: 0.6;
+    }
+
+    .warning-box .box-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .warning-box p {
+      font-size: 15px;
+      color: #ccc;
+      line-height: 1.8;
+      margin-bottom: 10px;
+    }
+
+    .warning-box p:last-child { margin-bottom: 0; }
+
+    /* ── EVAL GRID ── */
+    .eval-grid {
+      margin: 36px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 560px) {
+      .eval-grid { grid-template-columns: 1fr; }
+    }
+
+    .eval-item {
+      background: var(--surface);
+      padding: 22px 24px;
+      position: relative;
+      transition: background 0.2s ease;
+      cursor: default;
+    }
+
+    .eval-item:hover {
+      background: var(--surface-2);
+    }
+
+    .eval-item::before {
+      content: '→';
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      opacity: 0.7;
+      display: block;
+      margin-bottom: 8px;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .eval-item:hover::before {
+      opacity: 1;
+      transform: translateX(3px);
+    }
+
+    .eval-item p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* ── MEASURE TABLE ── */
+    .measure-table {
+      margin: 36px 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .measure-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s ease;
+    }
+
+    .measure-row:not(.header):hover {
+      background: rgba(255,255,255,0.02) !important;
+    }
+
+    .measure-row:last-child { border-bottom: none; }
+
+    .measure-row.header {
+      background: var(--surface-2);
+    }
+
+    .measure-row.header span {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 14px 20px;
+    }
+
+    .measure-row .if-col {
+      padding: 18px 20px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      border-right: 1px solid var(--border);
+    }
+
+    .measure-row .then-col {
+      padding: 18px 20px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .measure-row .then-col::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .measure-row.bad .then-col { color: var(--red); }
+    .measure-row.bad .then-col::before { background: var(--red); opacity: 0.6; }
+    .measure-row.bad { background: rgba(224, 112, 112, 0.02); }
+
+    .measure-row.good .then-col { color: var(--green); }
+    .measure-row.good .then-col::before { background: var(--green); opacity: 0.6; }
+    .measure-row.good { background: rgba(126, 200, 160, 0.02); }
+
+    /* ── CLOSING ── */
+    .closing {
+      margin-top: 64px;
+      padding: 52px 48px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .closing::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%);
+    }
+
+    .closing::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 120px;
+      background: radial-gradient(ellipse, rgba(232,201,122,0.04) 0%, transparent 70%);
+    }
+
+    .closing p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(22px, 3.5vw, 33px);
+      font-weight: 500;
+      line-height: 1.45;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+    }
+
+    .closing p.closing-sub {
+      font-size: clamp(15px, 2vw, 19px);
+      color: var(--red);
+      font-style: italic;
+      font-weight: 400;
+      margin: 0;
+      opacity: 0.9;
+    }
+
+    /* ── AUTHOR CARD ── */
+    .author-card {
+      margin-top: 68px;
+      padding: 28px 32px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: border-color 0.25s ease, background 0.25s ease;
+    }
+
+    .author-card:hover {
+      border-color: var(--border-hover);
+      background: var(--surface-2);
+    }
+
+    .author-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      border: 1px solid rgba(232,201,122,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .author-info p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+    }
+
+    .author-info p strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .author-info p.role {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .author-info .author-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      opacity: 0.7;
+      text-decoration: none;
+      margin-top: 5px;
+      transition: opacity 0.2s ease;
+    }
+
+    .author-info .author-link:hover { opacity: 1; }
+
+    /* ── SCROLL TO TOP ── */
+    #scroll-top {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      width: 40px;
+      height: 40px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 50;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.3s ease, transform 0.3s ease, border-color 0.2s ease, background 0.2s ease;
+      color: var(--text-muted);
+    }
+
+    #scroll-top.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #scroll-top:hover {
+      border-color: var(--border-hover);
+      background: var(--surface-3);
+      color: var(--accent);
+    }
+
+    #scroll-top svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      header { padding: 72px 20px 48px; }
+      main { padding: 0 20px 80px; }
+      .closing { padding: 36px 28px; }
+      .author-card { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+  <div class="ambient-top"></div>
+
+  <header>
+    <p class="header-label"><span>Quality Engineering · AI · Product Thinking</span></p>
+    <h1>AI doesn't scale quality.<br>It scales <em>false confidence.</em></h1>
+    <p class="byline">
+      <span class="author-name">Santosh Srivastava</span>
+      <span class="sep">·</span>
+      <span class="tag">Product Quality Leader</span>
+      <span class="sep">·</span>
+      <span>MBA, Product Leadership</span>
+      <span class="sep">·</span>
+      <span>April 2026</span>
+    </p>
+    <div class="divider"></div>
+  </header>
+
+  <main>
+
+    <div class="lede">
+      <p class="opener">AI can now generate test cases, execute them, and even log bugs.</p>
+      <p>On paper, this looks like the end of QA problems. And honestly, it does solve one part — speed, coverage, effort. But quality was never just about doing more. It was always about choosing what matters. That is where things start to break.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-label">The gap no one is talking about</div>
+      <p>AI does not understand business risk. It does not know which flow can impact revenue. It does not carry the memory of past production failures. It does not get uncomfortable when something <strong>"looks fine but feels wrong."</strong></p>
+      <p>So it does what it is good at. It generates more. More test cases. More variations. More activity.</p>
+    </div>
+
+    <div class="callout section">
+      <p>"Everything looks covered. Everything is passing. Pipelines are faster. Confidence goes up — but not because quality improved. Because visibility increased."</p>
+    </div>
+
+    <div class="warning-box section">
+      <div class="box-label">⚠ The Trap</div>
+      <p>When critical issues reach production in this setup, it is not because testing did not happen.</p>
+      <p>It is because <strong>the system tested the wrong things really well.</strong></p>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Why evals are not optional</div>
+      <p>Once AI starts generating tests, your role is no longer to manage testing. Your role is to <strong>validate the system that is deciding what gets tested.</strong></p>
+
+      <div class="eval-grid">
+        <div class="eval-item"><p>Are we covering high-risk scenarios or just increasing volume?</p></div>
+        <div class="eval-item"><p>Are we reducing noise or adding to it?</p></div>
+        <div class="eval-item"><p>Are we learning from production failures or repeating them?</p></div>
+        <div class="eval-item"><p>Are we building confidence or just reporting activity?</p></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">AI optimizes for what you measure</div>
+
+      <div class="measure-table">
+        <div class="measure-row header">
+          <span>If you measure…</span>
+          <span>AI will…</span>
+        </div>
+        <div class="measure-row bad">
+          <div class="if-col">Output</div>
+          <div class="then-col">Give you more output</div>
+        </div>
+        <div class="measure-row bad">
+          <div class="if-col">Coverage blindly</div>
+          <div class="then-col">Spread thin</div>
+        </div>
+        <div class="measure-row bad">
+          <div class="if-col">Pass rates</div>
+          <div class="then-col">Avoid complexity</div>
+        </div>
+        <div class="measure-row good">
+          <div class="if-col">Risk, signal &amp; real-world impact</div>
+          <div class="then-col">Start behaving differently</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="closing section">
+      <p>AI is powerful. No doubt.<br>But without the right evals, it does not scale quality.</p>
+      <p class="closing-sub">False confidence is far more expensive than slow testing.</p>
+    </div>
+
+    <div class="author-card section">
+      <div class="author-avatar">S</div>
+      <div class="author-info">
+        <p><strong>Santosh Srivastava</strong></p>
+        <p class="role">Product Quality Leader · MBA, Product Leadership</p>
+        <a class="author-link" href="https://srivastava367.github.io/TheProductGuy/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" width="10" height="10">
+            <path d="M1 11L11 1M11 1H4M11 1V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          srivastava367.github.io/TheProductGuy
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scroll to top -->
+  <div id="scroll-top" title="Back to top">
+    <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7 11V3M7 3L3 7M7 3L11 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <script>
+    // Scroll reveal
+    const sections = document.querySelectorAll('.section');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+    sections.forEach(s => observer.observe(s));
+
+    // Reading progress bar
+    const bar = document.getElementById('progress-bar');
+    function updateProgress() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      bar.style.width = pct + '%';
+    }
+
+    // Scroll-to-top button
+    const scrollTop = document.getElementById('scroll-top');
+    function handleScroll() {
+      updateProgress();
+      if (window.scrollY > 300) {
+        scrollTop.classList.add('show');
+      } else {
+        scrollTop.classList.remove('show');
+      }
+    }
+
+    scrollTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+  </script>
+
+</body>
+</html>
