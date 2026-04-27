@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tone and Style: A Mind Map for Sharper Writing</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f4f1;
+      --text-primary: #1a1a18;
+      --text-secondary: #4a4a47;
+      --text-tertiary: #888780;
+      --border-light: rgba(0,0,0,0.1);
+      --border-medium: rgba(0,0,0,0.18);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f0ede8;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 3rem 1.5rem;
+    }
+
+    .article-wrap {
+      max-width: 660px;
+      width: 100%;
+      background: var(--bg-primary);
+      border-radius: 16px;
+      padding: 3rem 3.5rem 3.5rem;
+      border: 0.5px solid var(--border-light);
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      margin-bottom: 0.75rem;
+    }
+
+    .headline {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      line-height: 1.25;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+
+    .headline em {
+      font-style: italic;
+      color: var(--text-secondary);
+    }
+
+    .lede {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      border-left: 2px solid var(--border-medium);
+      padding-left: 1rem;
+    }
+
+    .prose {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: 1.25rem;
+    }
+
+    .big-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 2.5rem 0 1.75rem;
+    }
+
+    .big-divider-line {
+      flex: 1;
+      height: 0.5px;
+      background: var(--border-light);
+    }
+
+    .big-divider-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+
+    .pill-section {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-secondary);
+      border-radius: 99px;
+      padding: 4px 12px 4px 6px;
+      margin-bottom: 1.25rem;
+    }
+
+    .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pill-text {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tag-group {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 0.875rem 1rem;
+    }
+
+    .tag-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 500;
+      margin-bottom: 0.625rem;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      border: 0.5px solid var(--border-light);
+      color: var(--text-secondary);
+      background: var(--bg-primary);
+      line-height: 1.6;
+    }
+
+    .insight-box {
+      border: 0.5px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      padding: 1.375rem 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .insight-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-tertiary);
+      margin-bottom: 0.5rem;
+    }
+
+    .insight-text {
+      font-family: 'DM Serif Display', serif;
+      font-size: 18px;
+      line-height: 1.45;
+      color: var(--text-primary);
+    }
+
+    .combo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 1.25rem 0 2rem;
+    }
+
+    .combo-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.125rem;
+    }
+
+    .combo-card-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-bottom: 0.5rem;
+    }
+
+    .combo-tone {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+
+    .combo-style {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .divider {
+      height: 0.5px;
+      background: var(--border-light);
+      margin: 2rem 0;
+    }
+
+    .cta-line {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-top: 1.25rem;
+    }
+
+    .cta-line strong {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 0.5px solid var(--border-light);
+    }
+
+    @media (max-width: 540px) {
+      .article-wrap { padding: 2rem 1.5rem 2.5rem; }
+      .headline { font-size: 24px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .combo-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <article class="article-wrap">
+
+    <p class="eyebrow">Generative AI and Writing / 2026</p>
+
+    <h1 class="headline">
+      Most people pick a <em>topic</em> to write about.<br>
+      The sharp ones also pick a <em>tone</em>.
+    </h1>
+
+    <p class="lede">
+      Tone and style are not decoration. They are the difference between a prompt that gets a generic answer and one that gets something you would actually use. Here is the mental model I wish someone handed me earlier.
+    </p>
+
+    <p class="prose">
+      The Oxford English Dictionary does not have a fixed list of tones. That is not a gap in the dictionary. That is the point. Tone is descriptive, not prescriptive. New ones emerge with culture (think "AI-native" or "meme-driven"), and styles shift across domains constantly.
+    </p>
+
+    <p class="prose">
+      But for practical writing and prompting, you need a working set. Clean, categorized, usable. Here it is.
+    </p>
+
+    <div class="big-divider">
+      <div class="big-divider-line"></div>
+      <span class="big-divider-label">Part 1 &nbsp; Tone</span>
+      <div class="big-divider-line"></div>
+    </div>
+
+    <div class="pill-section">
+      <div class="pill-dot" style="background:#534AB7;"></div>
+      <span class="pill-text">How it feels</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="tag-group">
+        <div class="tag-group-title" style="color:#3C3489;">Formality spectrum</div>
+        <div class="tags">
+          <span class="tag">Formal</span>
+          <span class="tag">Informal</span>
+          <span class="tag">Neutral</span>
+        </div>
+      </div>
+      <div class="tag-group">
+        <div class="tag-group-title" style="color:#993C1D;">Energy and delivery</div>
+        <div class="tags">
+          <span class="tag">Energetic</span>
+          <span class="tag">Calm</span>
+          <span class="tag">Urgent</span>
+          <span class="tag">Matter-of-fact</span>
+          <span class="tag">Reflective</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="tag-group">
+        <div class="tag-group-title" style="color:#0C447C;">Emotional tone</div>
+        <div class="tags">
+          <span class="tag">Optimistic</span>
+          <span class="tag">Pessimistic</span>
+          <span class="tag">Empathetic</span>
+          <span class="tag">Sympathetic</span>
+          <span class="tag">Serious</span>
+          <span class="tag">Playful</span>
+          <span class="tag">Humorous</span>
+          <span class="tag">Sarcastic</span>
+          <span class="tag">Ironic</span>
+        </div>
+      </div>
+      <div class="tag-group">
+        <div class="tag-group-title" style="color:#0F6E56;">Attitude and intent</div>
+        <div class="tags">
+          <span class="tag">Persuasive</span>
+          <span class="tag">Assertive</span>
+          <span class="tag">Aggressive</span>
+          <span class="tag">Respectful</span>
+          <span class="tag">Critical</span>
+          <span class="tag">Appreciative</span>
+          <span class="tag">Encouraging</span>
+          <span class="tag">Motivational</span>
+          <span class="tag">Inspirational</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="big-divider">
+      <div class="big-divider-line"></div>
+      <span class="big-divider-label">Part 2 &nbsp; Style</span>
+      <div class="big-divider-line"></div>
+    </div>
+
+    <div class="pill-section">
+      <div class="pill-dot" style="background:#185FA5;"></div>
+      <span class="pill-text">How it is written</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="tag-group">
+        <div class="tag-group-title" style="color:#3C3489;">Structure and clarity</div>
+        <div class="tags">
+          <span class="tag">Concise</span>
+          <span class="tag">Detailed</span>
+          <span class="tag">Analytical</span>
+          <span class="tag">Explanatory</span>
+          <span class="tag">Instructional</span>
+          <span class="tag">Narrative</span>
+          <span class="tag">Descriptive</span>
+          <span class="tag">Comparative</span>
+        </div>
+      </div>
+      <div class="tag-group">
+        <div class="tag-group-title" style="color:#0C447C;">Language and expression</div>
+        <div class="tags">
+          <span class="tag">Simple</span>
+          <span class="tag">Technical</span>
+          <span class="tag">Academic</span>
+          <span class="tag">Business</span>
+          <span class="tag">Creative</span>
+          <span class="tag">Poetic</span>
+          <span class="tag">Minimalist</span>
+          <span class="tag">Verbose</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="tag-group">
+        <div class="tag-group-title" style="color:#0F6E56;">Voice and perspective</div>
+        <div class="tags">
+          <span class="tag">First-person</span>
+          <span class="tag">Second-person</span>
+          <span class="tag">Third-person</span>
+          <span class="tag">Active voice</span>
+          <span class="tag">Passive voice</span>
+        </div>
+      </div>
+      <div class="tag-group">
+        <div class="tag-group-title" style="color:#993C1D;">Modern digital styles</div>
+        <div class="tags">
+          <span class="tag">Conversational</span>
+          <span class="tag">LinkedIn thought-leadership</span>
+          <span class="tag">Storytelling</span>
+          <span class="tag">Bullet-driven</span>
+          <span class="tag">Hook-driven</span>
+          <span class="tag">Data-backed</span>
+          <span class="tag">Contrarian</span>
+          <span class="tag">Framework-based</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <div class="insight-label">The practical truth</div>
+      <p class="insight-text">You do not pick a tone. You do not pick a style. You combine them and that combination is where your voice lives.</p>
+    </div>
+
+    <div class="big-divider">
+      <div class="big-divider-line"></div>
+      <span class="big-divider-label">Part 3 &nbsp; Combinations in the wild</span>
+      <div class="big-divider-line"></div>
+    </div>
+
+    <p class="prose">Three examples of how real writing and prompting actually stacks these:</p>
+
+    <div class="combo-grid">
+      <div class="combo-card">
+        <div class="combo-card-label">For a LinkedIn post</div>
+        <div class="combo-tone">Reflective + Encouraging</div>
+        <div class="combo-style">Storytelling + Concise + Hook-driven</div>
+      </div>
+      <div class="combo-card">
+        <div class="combo-card-label">For a technical explainer</div>
+        <div class="combo-tone">Neutral + Matter-of-fact</div>
+        <div class="combo-style">Analytical + Instructional + Simple</div>
+      </div>
+      <div class="combo-card">
+        <div class="combo-card-label">For a product launch post</div>
+        <div class="combo-tone">Energetic + Optimistic</div>
+        <div class="combo-style">Hook-driven + Data-backed + Concise</div>
+      </div>
+      <div class="combo-card">
+        <div class="combo-card-label">For a contrarian take</div>
+        <div class="combo-tone">Assertive + Ironic</div>
+        <div class="combo-style">Contrarian + Framework-based + Conversational</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <p class="prose">
+      Next time you write a prompt or a post, do not just describe what you want to say. Tell the tool, or yourself, exactly how it should feel to read it.
+    </p>
+
+    <p class="cta-line">
+      <strong>Try this now:</strong> Pick one tone from above. Pick two style attributes. Write your next prompt with those three words before your actual request. The output will surprise you.
+    </p>
+
+    <p class="footer-note">2026 &nbsp; A working reference for tone and style in writing and AI prompting.</p>
+
+  </article>
+</body>
+</html>
